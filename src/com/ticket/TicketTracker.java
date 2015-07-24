@@ -14,7 +14,7 @@ import com.user.UserManagement;
 public class TicketTracker {
 
 	public static void listTravels1(){
-		User u = UserManagement.existingUser();
+		UserManagement.existingUser();
 		//System.out.println(Ticket.ticketHash.get(u.getUserId()));
 	}
 	public static void listTravels(){

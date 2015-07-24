@@ -13,7 +13,7 @@ import com.user.UserManagement;
 	
 		public static void mainChoice(){
 			Scanner s1 = new Scanner(System.in);
-			System.out.println("Here.");
+		
 			do{
 				message();			
 				try {
@@ -34,16 +34,16 @@ import com.user.UserManagement;
 							break;
 						case 7: Ticket.buyTicket();
 							break;
-						case 8: TicketTracker.listTravels();
-							break;	
-						case 9: TicketTracker.sortOnDate();
+						//case 8: TicketTracker.listTravels();
+						//	break;	
+						case 8: TicketTracker.sortOnDate();
 							break;
-						case 10:	System.out.println("Bye,ThankYou for using Metro Card System!");
+						case 9:	System.out.println("Bye,ThankYou for using Metro Card System!");
 							System.exit(0);						
 					}
 				} catch (InputMismatchException e) {
 					System.out.println("Incorrect input type. Try again.");
-					System.exit(0);	
+					mainChoice();	
 				}
 			}while(true);
 						

@@ -85,7 +85,15 @@ public class Ticket implements Comparable<Ticket>{
 		Scanner s = new Scanner(System.in);
 		long cardId = s.nextLong();
 		
-		if (cardId == u.getUsercard().getCardId()){
+		long userCard = 0;
+		try {
+			userCard = u.getUsercard().getCardId();
+		} catch (NullPointerException e) {
+			System.out.println("Please enter a valid card number!!");
+			return false;
+		}
+		
+		if (cardId == userCard){
 			System.out.println("Processing...");
 			u.getUsercard().setBalance(bal);
 			System.out.println("Your balance is "+ u.getUsercard().getBalance()+"$");

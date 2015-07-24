@@ -28,6 +28,11 @@ public class Station {
 		System.out.println("1. Station A 2. Station B , 3. Station C 4. Station D, 5.Station E, 6.Station F");
 		Scanner s = new Scanner(System.in);
 		int bStation = s.nextInt();
+		if(bStation > NOOFSTATIONS || bStation < 1)
+		{
+			System.out.println("Your input doesn't correspond to a station name");
+			System.exit(0);
+			}
 		return bStation;	
 		//s.close();						
 	}
@@ -36,6 +41,10 @@ public class Station {
 		System.out.println("1. Station A 2. Station B , 3. Station C 4. Station D, 5.Station E, 6.Station F");
 		Scanner s = new Scanner(System.in);
 		int aStation = s.nextInt();
+		if(aStation > NOOFSTATIONS || aStation < 1)
+		{	System.out.println("Your input doesn't correspond to a station name");
+			System.exit(0);
+			}
 		return aStation;
 		//s.close();
 	}

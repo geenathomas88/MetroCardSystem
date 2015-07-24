@@ -7,21 +7,36 @@ import java.util.Set;
 public class UserManagement {
 
 	public static User existingUser(){
+
+		long userid =swipeCard();
+				
+		if(!User.userCardHash.containsKey(userid)){
+			System.out.println("User not found.");
+			System.exit(0);			
+			}
+		System.out.println(userid);
+		User u = User.userCardHash.get(userid);			
+		System.out.println(u);
+		System.out.println(u.getName() + " ------ " + u.getUserId() + " ------ " +u.getUsercard());
+		
+		return u;		
+	}
+	public static long swipeCard(){
+		long uid = 0;
 		System.out.println("Please swipe your card to proceed : (Enter your card number)");
 		Scanner s = new Scanner(System.in);
-		long userid = s.nextLong();
-		User.printUser(userid);
-		User u = User.userCardHash.get(userid);
+		
 		try {
-			//s.close();
-			System.out.println(" ------ " +u.getUsercard());
-			
-		} catch (NullPointerException e) {
-			System.out.println("Please enter a valid card number");
-			e.printStackTrace();
+			uid = s.nextLong();							
 		}
-		return u;
+		 catch (NullPointerException e) {
+			System.out.println("Please enter a valid card number");
+			existingUser();			
+		}
+			
+		return uid;
 	}
+	
 	public static void listUsers(){
 		Set<Long> userSet = User.userCardHash.keySet();
 		Iterator<Long> it = userSet.iterator();
