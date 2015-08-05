@@ -1,31 +1,33 @@
 package com.user;
 
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Scanner;
 
 import com.card.BuyCard;
+import com.main.MysqlConnect;
 
 public class User {
 
 	String userName;
-	long userId;
+	int userId;
 	private BuyCard usercard;
 	static HashMap<Long, User> userCardHash = new HashMap<Long, User>();
-	public static long count =1;
+	//public static int count =1;
 	
-	public User(String name) {
+	public User(String name) throws SQLException {
 		this.userName = name;
-		//this.userId = Calendar.getInstance().getTimeInMillis();
-		this.userId = count;	
-		setUsercard(new BuyCard(this.userId));
-		userCardHash.put(userId, this);
+		//this.userId = count;
+		insertUser(this);		
+		//setUsercard(new BuyCard(this.userId));		
+		//userCardHash.put(userId, this);
 	}
 	public long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 	public String getName(){
@@ -46,18 +48,27 @@ public class User {
 				+ "]";
 	}
 	
-	public static void createUser(){
+	public static void createUser() throws SQLException{
 		Scanner s = new Scanner(System.in);
 		System.out.println("Enter new User Details");
 		System.out.println("User Name : ");
 		String n = s.nextLine();
 		
 		User u = new User(n);		
-		System.out.println(u.toString());
+		//System.out.println(u.toString());
 		System.out.println("ThankYou, Your account is created!");
-		count++;
-		//OptionSelect.continueChoice();
+		//count++;
 		//s.close();
 	}
-
+	public static void insertUser(User user) throws SQLException{
+		String uName = user.userName;
+		MysqlConnect db = MysqlConnect.getDbConnection();
+				
+		String sql = "insert into users (name) values ('"+uName+"')";
+		int generatedUserid = db.insert(sql);
+		System.out.println("User "+ uName + " is created. " + "User id is " +generatedUserid );
+		int cId = BuyCard.insertIntoUserCard(generatedUserid);
+		System.out.println("Your card number is : " +cId+". Use this id for further steps.");
+		
+	}
 }

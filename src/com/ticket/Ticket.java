@@ -1,45 +1,36 @@
 package com.ticket;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Scanner;
-
-import com.user.User;
+import com.card.BuyCard;
+import com.main.MysqlConnect;
 import com.user.UserManagement;
 
 public class Ticket implements Comparable<Ticket>{
 	
 	String boardStation;
 	String alightStation;
-	Date timeOfTravel;
-	long userId;
+	LocalDateTime timeOfTravel;
+	int userId;
 	
-	static HashMap<Date, Ticket> ticketHash = new HashMap<Date, Ticket>();
-	
-	public Ticket(String boardStation, String alightStation,long userid) {
+	public Ticket(String boardStation, String alightStation,int userid) throws SQLException {
 		this.boardStation = boardStation;
-		this.alightStation = alightStation;
-		this.timeOfTravel = Calendar.getInstance().getTime();
+		this.alightStation = alightStation;	
 		this.userId = userid;
+		insertTicket(this);
+	}
+
+	public static void insertTicket(Ticket ticket) throws SQLException{
+		String bStation = ticket.boardStation;
+		String aStation = ticket.alightStation;
+		LocalDateTime time_of_travel = LocalDateTime.now();
+		int uId = ticket.userId;
 		
-		ticketHash.put(this.timeOfTravel, this);
-	}
-
-	public String getBoardStation() {
-		return boardStation;
-	}
-
-	public void setBoardStation(String boardStation) {
-		this.boardStation = boardStation;
-	}
-
-	public String getAlightStation() {
-		return alightStation;
-	}
-
-	public void setAlightStation(String alightStation) {
-		this.alightStation = alightStation;
+		MysqlConnect db = MysqlConnect.getDbConnection();
+		String sql = "insert into ticket (board_station,alight_station,time_of_travel,user_id) values ('"+bStation+"','"+aStation+"','"+time_of_travel+"', "+uId+")";
+		db.insert(sql);
 	}
 	
 	@Override
@@ -49,45 +40,57 @@ public class Ticket implements Comparable<Ticket>{
 				+ ", userId=" + userId + "]";
 	}
 
-	public static void buyTicket(){		
-		User u = UserManagement.existingUser();
-		if(u.getUsercard().getBalance() < 20)
-		{
+	public static void buyTicket() throws SQLException{		
+		int cId = UserManagement.existingUser1();
+		ResultSet rs = BuyCard.queryUsersCard(cId);
+		int balance= 0;
+		int uId = 0;
+		while(rs.next()){
+			balance = rs.getInt(2);
+			uId = rs.getInt(3);
+		}
+		if(balance < 20){
 			System.out.println("Sorry, You dont have minimum balance to make a trip! Please recharge your card.");
 		}
-		else{
+		else
+		{
 			int boardingStation = Station.getBoardingStation();
 			int alightingStation = Station.getAlightingStation();
 			int diffStation = Station.abs(alightingStation - boardingStation);
 			if(diffStation == 0 || diffStation < 1 || diffStation >  (Station.NOOFSTATIONS - 1)){
 				System.out.println("Sorry!, Wrong Station Chosen");
 			}else{
-				if(grantTicket(u,boardingStation,alightingStation)){
+				if(grantTicket(cId,boardingStation,alightingStation)){
 					String bStation = Station.stationToString(boardingStation);
 					String aStation = Station.stationToString(alightingStation);
 					
-					new Ticket(bStation, aStation,u.getUserId());
+					new Ticket(bStation, aStation,uId);
 					//ticketHash.put(u.getUserId(), ticket);
 					System.out.println("Have a happy journey!");
 				}else{
 					System.out.println("Error Occured!!");
 				}
 			}
+		
 		}
+
 	}
 	
-	public static boolean grantTicket(User u,int boardingStation,int aightingStation){
+
+	public static boolean grantTicket(int cId,int boardingStation,int aightingStation) throws SQLException{
 		int diff = Station.abs(aightingStation - boardingStation);
 		int cost = Station.NOOFSTATIONS-diff;
-		int bal = u.getUsercard().getBalance() - (Station.NOOFSTATIONS-diff);
+		
+		int bal = BuyCard.getBalance(cId) - (Station.NOOFSTATIONS-diff);
+		
 		System.out.println("Your trip costs " + cost+ "$.");
 		System.out.println("Please swipe your card to proceed : (Enter your card number)");
 		Scanner s = new Scanner(System.in);
-		long cardId = s.nextLong();
+		int cardId = s.nextInt();
 		
-		long userCard = 0;
+		int userCard = 0;
 		try {
-			userCard = u.getUsercard().getCardId();
+			userCard = BuyCard.getCardId(cId);
 		} catch (NullPointerException e) {
 			System.out.println("Please enter a valid card number!!");
 			return false;
@@ -95,8 +98,8 @@ public class Ticket implements Comparable<Ticket>{
 		
 		if (cardId == userCard){
 			System.out.println("Processing...");
-			u.getUsercard().setBalance(bal);
-			System.out.println("Your balance is "+ u.getUsercard().getBalance()+"$");
+			BuyCard.setBalance(cId, bal);
+			System.out.println("Your balance is "+ BuyCard.getBalance(cId)+"$");
 			return true;
 		}
 		else
@@ -106,7 +109,8 @@ public class Ticket implements Comparable<Ticket>{
 		}
 		//s.close();		
 	}
-
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

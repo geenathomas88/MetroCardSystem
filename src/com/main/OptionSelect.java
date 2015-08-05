@@ -1,5 +1,7 @@
 package com.main;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -11,7 +13,7 @@ import com.user.UserManagement;
 
 	public class OptionSelect {
 	
-		public static void mainChoice(){
+		public static void mainChoice() throws Exception{
 			Scanner s1 = new Scanner(System.in);
 		
 			do{
@@ -39,6 +41,7 @@ import com.user.UserManagement;
 						case 8: TicketTracker.sortOnDate();
 							break;
 						case 9:	System.out.println("Bye,ThankYou for using Metro Card System!");
+							s1.close();
 							System.exit(0);						
 					}
 				} catch (InputMismatchException e) {
@@ -50,16 +53,15 @@ import com.user.UserManagement;
 			//s1.close();		
 	}
 		
-	public static void message(){
+	public static void message() throws SQLException{
 		System.out.println("Enter your choice");
-		System.out.println("1. New User");
-		System.out.println("2. Edit User");
-		System.out.println("3. List Users");
-		System.out.println("4. Show Card Details");
-		System.out.println("5. Check Balance");
-		System.out.println("6. Add Credit");
-		System.out.println("7. Buy Ticket");
-		System.out.println("8. Summary");
-		System.out.println("9. Exit");
+		
+		MysqlConnect db = MysqlConnect.getDbConnection();
+		String sql = "select * from choices";		
+		
+		ResultSet rs = db.query(sql);
+		while(rs.next()){
+			System.out.println(rs.getInt(1) + ". " + rs.getString(2));
+		}
 	}
 }
